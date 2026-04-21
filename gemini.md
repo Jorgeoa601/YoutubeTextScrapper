@@ -47,6 +47,6 @@
 ## Architectural Invariants
 - **Layer 1: Architecture** (`architecture/`) - Technical SOPs and logic rules.
 - **Layer 2: Navigation** (`public/`) - Frontend static routing (HTML/CSS/JS) ensuring no token leakage.
-- **Layer 3: Tools** (`netlify/functions/`) - Deterministic Serverless Functions (Node.js recommended for Apify SDK stability on Netlify).
+- **Layer 3: Tools** (`api/`) - Deterministic Vercel Serverless Functions utilizing standard Express (req, res).
 - Use `.env` for secrets.
 - Use `.tmp/` for all intermediate files.

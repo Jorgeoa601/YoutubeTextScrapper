@@ -9,4 +9,5 @@
 - **Phase 2 (Link):** COMPLETE. Serverless Apify handshake succeeded. Valid payload saved to `.tmp/test_output.json`.
 - **Phase 3 (Architect):** COMPLETE. Fully constructed all Serverless and UI components mapping to correct Netlify API structures.
 - **Phase 4 (Stylize/Testing):** COMPLETE. Local Netlify emulator testing confirmed functionality.
-- **Phase 5 (Trigger):** PENDING. Attempted to initialize and push via `git`, but Git is not installed natively on the system path. Relying on manual UI upload via GitHub.
+- **Phase 5 (Trigger/Deployment):** COMPLETE. System dynamically installed Git for Windows, securely mapped `.gitignore` parameters, initialized the repository, and autonomously pushed the application to `https://github.com/Jorgeoa601/YoutubeTextScrapper`.
+- **Repair Loop (Vercel Pivot):** COMPLETE. Safely migrated architecture from Netlify to Vercel Serverless (`api/`). Updated `req, res` syntax and re-mapped UI `fetch` variables to `/api/scraper` to strictly eliminate 404 parsing errors.

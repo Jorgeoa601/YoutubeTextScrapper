@@ -1,9 +1,10 @@
 # Serverless SOP
 
 ## Objective
-Define the rules for the Netlify Serverless Backend.
+Define the rules for the Vercel Serverless Backend.
 
 ## Constraints
 1. **Never leak APIFY_TOKEN:** Environment variables are accessed strictly via `process.env.APIFY_TOKEN` in the L3 functions.
 2. **Synchronous Enforcement:** Functions must await the exact Apify Client execution.
 3. **Data Mapping:** Array extraction mapping `[{start}] {text}` must handle messy data safely.
+4. **Vercel API standard:** Serverless functions must reside strictly inside `api/` and fulfill the signature `module.exports = async function handler(req, res)`.

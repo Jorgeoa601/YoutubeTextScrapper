@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.classList.remove('hidden');
 
         try {
-            // Initiate Netlify Serverless fetch
-            const response = await fetch('/.netlify/functions/scraper', {
+            // Initiate Vercel Serverless fetch
+            const response = await fetch('/api/scraper', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ videoUrl: url })
