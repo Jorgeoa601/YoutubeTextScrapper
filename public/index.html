@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Transcript Scraper</title>
+    <meta name="description" content="Extract perfect, timestamped YouTube transcripts in an instant.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="blob-bg"></div>
+    <main class="container">
+        <header>
+            <div class="badge">A.N.T. System Active</div>
+            <h1>YouTube Transcript <span>Scraper</span></h1>
+            <p>Seamlessly extract synchronous captions from any public YouTube video.</p>
+        </header>
+
+        <form id="scrape-form" class="input-card">
+            <div class="input-wrapper">
+                <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required />
+            </div>
+            <button type="submit" id="submit-btn">
+                <span id="btn-text">Extract Transcript</span>
+                <div class="spinner hidden" id="spinner"></div>
+            </button>
+        </form>
+
+        <div id="error-container" class="error-container hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <p id="error-text">An error occurred.</p>
+        </div>
+
+        <section class="output-card">
+            <div class="output-header">
+                <h2>Extracted Output</h2>
+                <button type="button" id="copy-btn" class="copy-btn hidden">Copy to Clipboard</button>
+            </div>
+            <textarea id="transcript-output" readonly placeholder="[1.200] Your timestamped transcript will beautifully materialize here..."></textarea>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>

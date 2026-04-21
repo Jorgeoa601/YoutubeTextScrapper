@@ -1,0 +1,10 @@
+{
+  "name": "yotubetextscrapper-functions",
+  "version": "1.0.0",
+  "description": "Netlify serverless functions",
+  "main": "scraper.js",
+  "dependencies": {
+    "apify-client": "^2.9.2",
+    "dotenv": "^16.4.5"
+  }
+}
