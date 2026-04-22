@@ -1,4 +1,5 @@
 // Layer 3: Vercel Serverless Function - Apify Main Logic
+require('proxy-agent'); // FORCE Vercel to bundle this module
 const { ApifyClient } = require('apify-client');
 
 module.exports = async function handler(req, res) {
