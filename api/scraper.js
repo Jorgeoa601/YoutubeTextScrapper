@@ -1,8 +1,10 @@
 // Layer 3: Vercel Serverless Function - Apify Main Logic
-require('proxy-agent'); // FORCE Vercel to bundle this module
 const { ApifyClient } = require('apify-client');
 
 module.exports = async function handler(req, res) {
+    // FORCE Vercel to bundle the ESM proxy-agent dependency via dynamic import
+    await import('proxy-agent');
+
     // 1. Method Validation
     if (req.method !== 'POST') {
         return res.status(405).json({ error: "Method Not Allowed. Use POST." });
