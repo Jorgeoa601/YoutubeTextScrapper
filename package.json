@@ -4,7 +4,7 @@
   "private": true,
   "description": "YouTube Transcript Scraper - Vercel Deployment",
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "dependencies": {
     "apify-client": "^2.9.2"
