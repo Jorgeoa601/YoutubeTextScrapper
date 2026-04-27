@@ -41,7 +41,29 @@ module.exports = async function handler(req, res) {
             const cleanText = entry.text.replace(/\r?\n|\r/g, ' ');
             return `[${entry.start}] ${cleanText}`;
         }).join('\n');
+        // SUPABASE INTEGRATION (Soft-Fail Enforced)
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
         
+        if (supabaseUrl && supabaseKey) {
+            try {
+                const { createClient } = require('@supabase/supabase-js');
+                const supabase = createClient(supabaseUrl, supabaseKey);
+                
+                const { error } = await supabase
+                    .from('transcripts')
+                    .insert([{ video_url: videoUrl, transcript_text: formattedTranscript }]);
+                    
+                if (error) {
+                    console.error("Supabase Insertion Error:", error.message);
+                }
+            } catch (dbError) {
+                console.error("Database Connection Exception:", dbError.message);
+            }
+        } else {
+            console.warn("Supabase credentials missing. Bypassing database insertion.");
+        }
+
         // Successful Delivery payload
         return res.status(200).json({
             status: "success",

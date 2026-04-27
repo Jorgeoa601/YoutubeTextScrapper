@@ -31,6 +31,16 @@
 }
 ```
 
+### 4. Supabase Database Schema (Table: transcripts)
+```json
+{
+  "id": "uuid (Primary Key, Default: uuid_generate_v4())",
+  "video_url": "text (Not Null)",
+  "transcript_text": "text (Not Null)",
+  "created_at": "timestamp with time zone (Default: now())"
+}
+```
+
 ## Behavioral Rules
 - **Identity**: System Pilot
 - **Protocol**: B.L.A.S.T. (Blueprint, Link, Architect, Stylize, Trigger)
@@ -43,6 +53,7 @@
 - **Synchronous Execution**: The system must fully wait for Apify extraction to finish before rendering.
 - **Isolation**: Downloaded Apify payloads MUST reside temporarily in `.tmp/` and treated as ephemeral.
 - **Self-Healing/Manejo de Errores**: Graceful degradation. If the video is private/unavailable, render a clear UI error instead of crashing.
+- **Persistence Core**: Data extraction must be persisted to the Supabase PostgreSQL database. Soft-fail rules apply to prevent UI crashes if the database connection fails.
 
 ## Architectural Invariants
 - **Layer 1: Architecture** (`architecture/`) - Technical SOPs and logic rules.

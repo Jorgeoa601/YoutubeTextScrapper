@@ -11,3 +11,6 @@
 - **Phase 4 (Stylize/Testing):** COMPLETE. Local Netlify emulator testing confirmed functionality.
 - **Phase 5 (Trigger/Deployment):** COMPLETE. System dynamically installed Git for Windows, securely mapped `.gitignore` parameters, initialized the repository, and autonomously pushed the application to `https://github.com/Jorgeoa601/YoutubeTextScrapper`.
 - **Repair Loop (Vercel Pivot):** COMPLETE. Safely migrated architecture from Netlify to Vercel Serverless (`api/`). Extinguished tracking for `netlify.toml` / `.netlify` directory. Fully updated code structure, formulated commit `Self-Annealing: Vercel Pivot`, and securely pushed the updated system state live to the GitHub Repository.
+
+## Expansión: Integración de Supabase (Database)
+- **Phase 1 (Blueprint):** IN PROGRESS. Definiendo esquemas de Supabase en `gemini.md` y SOP de Soft-Fail en `architecture/serverless_sop.md`. Plan de implementación en revisión.
