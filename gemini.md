@@ -31,15 +31,15 @@
 }
 ```
 
-### 4. Supabase Database Schema (Table: transcripts)
-```json
-{
-  "id": "uuid (Primary Key, Default: uuid_generate_v4())",
-  "video_url": "text (Not Null)",
-  "transcript_text": "text (Not Null)",
-  "created_at": "timestamp with time zone (Default: now())"
-}
-```
+### 4. Supabase Database Schema (Starter Story LATAM)
+- **channels**: id, youtube_handle, name.
+- **videos**: id, channel_id, youtube_id [UNIQUE], title, url, published_at, transcript_text, metadata.
+- **video_stats_history**: id, video_id, views, likes, recorded_at.
+- **scraper_logs**: id, run_datetime, status, videos_found, videos_new, errors.
+- **ai_video_analysis**: id, video_id, pain_point_category, analysis_json.
+- **rpm_profiles**: id, results_json, purpose_json, map_json, last_updated.
+- **solutions**: id, rpm_profile_id, target_pain_point, description, fit_score.
+- **solution_videos**: id, solution_id, video_id (Pivot Table).
 
 ## Behavioral Rules
 - **Identity**: System Pilot
@@ -50,6 +50,7 @@
 - Data-First rule: Define JSON schemas before writing any Tool code.
 - Self-Annealing repair loop applies to all errors.
 - `gemini.md` is law.
+- **Git Control**: NEVER autonomously execute `git push`. Always wait for explicit user permission before pushing changes to GitHub.
 - **Synchronous Execution**: The system must fully wait for Apify extraction to finish before rendering.
 - **Isolation**: Downloaded Apify payloads MUST reside temporarily in `.tmp/` and treated as ephemeral.
 - **Self-Healing/Manejo de Errores**: Graceful degradation. If the video is private/unavailable, render a clear UI error instead of crashing.

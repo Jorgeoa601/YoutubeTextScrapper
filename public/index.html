@@ -3,45 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Transcript Scraper</title>
-    <meta name="description" content="Extract perfect, timestamped YouTube transcripts in an instant.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>Starter Story LATAM - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="blob-bg"></div>
-    <main class="container">
-        <header>
-            <div class="badge">A.N.T. System Active</div>
-            <h1>YouTube Transcript <span>Scraper</span></h1>
-            <p>Seamlessly extract synchronous captions from any public YouTube video.</p>
-        </header>
-
-        <form id="scrape-form" class="input-card">
-            <div class="input-wrapper">
-                <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required />
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Starter Story <span class="accent">LATAM</span></h2>
             </div>
-            <button type="submit" id="submit-btn">
-                <span id="btn-text">Extract Transcript</span>
-                <div class="spinner hidden" id="spinner"></div>
-            </button>
-        </form>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3>INICIO</h3>
+                    <a href="#/" class="nav-item active" data-route="/">Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <h3>FASE 1 — SCRAPING</h3>
+                    <a href="#/scraper" class="nav-item" data-route="/scraper">Scraper & Logs</a>
+                    <a href="#/videos" class="nav-item" data-route="/videos">Videos</a>
+                </div>
+                <div class="nav-section">
+                    <h3>FASE 3 — CLASIFICACIÓN</h3>
+                    <a href="#/pain-points" class="nav-item" data-route="/pain-points">Pain Points LATAM</a>
+                    <a href="#/wizard" class="nav-item" data-route="/wizard">Wizard RPM</a>
+                </div>
+                <div class="nav-section">
+                    <h3>FASE 4 — SOLUCIONES</h3>
+                    <a href="#/solutions" class="nav-item" data-route="/solutions">Motor de Soluciones</a>
+                </div>
+                <div class="nav-section">
+                    <h3>FASE 5 — VALIDACIÓN</h3>
+                    <a href="#/mvt" class="nav-item" data-route="/mvt">MVT</a>
+                </div>
+                <div class="nav-section">
+                    <h3>SISTEMA</h3>
+                    <a href="#/settings" class="nav-item" data-route="/settings">Ajustes</a>
+                </div>
+            </nav>
+        </aside>
 
-        <div id="error-container" class="error-container hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            <p id="error-text">An error occurred.</p>
-        </div>
-
-        <section class="output-card">
-            <div class="output-header">
-                <h2>Extracted Output</h2>
-                <button type="button" id="copy-btn" class="copy-btn hidden">Copy to Clipboard</button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <h1 id="page-title">Dashboard</h1>
+            </header>
+            <div id="app-content" class="content-container">
+                <!-- Dynamically injected by app.js -->
             </div>
-            <textarea id="transcript-output" readonly placeholder="[1.200] Your timestamped transcript will beautifully materialize here..."></textarea>
-        </section>
-    </main>
+        </main>
+    </div>
     <script src="app.js"></script>
 </body>
 </html>

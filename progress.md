@@ -13,4 +13,7 @@
 - **Repair Loop (Vercel Pivot):** COMPLETE. Safely migrated architecture from Netlify to Vercel Serverless (`api/`). Extinguished tracking for `netlify.toml` / `.netlify` directory. Fully updated code structure, formulated commit `Self-Annealing: Vercel Pivot`, and securely pushed the updated system state live to the GitHub Repository.
 
 ## Expansión: Integración de Supabase (Database)
-- **Phase 1 (Blueprint):** IN PROGRESS. Definiendo esquemas de Supabase en `gemini.md` y SOP de Soft-Fail en `architecture/serverless_sop.md`. Plan de implementación en revisión.
+- **Phase 1-3:** COMPLETE. Persistencia de datos integrada exitosamente con protocolo Soft Fail implementado a nivel de backend. Base de datos operativa.
+
+## Reestructuración: Starter Story LATAM (Fases 1 y 2)
+- **Phase 1 (Blueprint):** IN PROGRESS. Definiendo arquitectura de routing UI, esquema relacional masivo (8 tablas) y lógica de scraping incremental de dos pasos con límite de 30 videos. Plan de implementación generado para revisión del usuario.
