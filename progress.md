@@ -16,4 +16,9 @@
 - **Phase 1-3:** COMPLETE. Persistencia de datos integrada exitosamente con protocolo Soft Fail implementado a nivel de backend. Base de datos operativa.
 
 ## Reestructuración: Starter Story LATAM (Fases 1 y 2)
-- **Phase 1 (Blueprint):** IN PROGRESS. Definiendo arquitectura de routing UI, esquema relacional masivo (8 tablas) y lógica de scraping incremental de dos pasos con límite de 30 videos. Plan de implementación generado para revisión del usuario.
+- **Phase 1 (Blueprint):** COMPLETE. Arquitectura de routing UI, esquema relacional masivo (8 tablas) y lógica de scraping incremental de dos pasos generados y autorizados.
+- **Phase 2 & 3 (Link & Architect):** COMPLETE. Esqueleto UI (Vanilla JS), configuración de enrutamiento y Vercel Cron creados localmente. Scraper "Two-Step" modificado usando descubrimiento Zero-Cost.
+- **Phase 4 & 5 (Data Binding & Deploy):** COMPLETE. Integración Supabase <-> UI finalizada. Commit `Blueprint Phase 1 & 2...` subido a GitHub.
+
+## Pívote Arquitectónico: Escalabilidad Multi-Canal
+- **Phase 1 (Blueprint):** IN PROGRESS. Reabriendo diseño de base de datos y UI para soportar N-canales, configuración individualizada (cron, límites de ejecución) y registro avanzado de historiales. Plan de implementación en revisión.
