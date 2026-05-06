@@ -725,32 +725,36 @@ function renderWizard() {
 
             <!-- MODO PERFIL ACTIVO -->
             <div id="wizard-active-mode" style="display: none; animation: fadeIn 0.5s;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 24px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
                     <div>
-                        <h2 style="color: var(--text-primary); font-size: 1.8rem;">Perfil RPM Procesado 🚀</h2>
-                        <p style="color: var(--success-color); font-weight: 500; font-size: 0.9rem; margin-top: 5px;">IA: Análisis de restricciones y plan completado.</p>
-                    </div>
-                    <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.2);">IA ACTIVADA</span>
-                </div>
-
-                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px;">
-                    <div style="flex: 1; min-width: 250px; background: var(--bg-body); border-radius: 8px; padding: 20px; border-left: 4px solid var(--accent-color);">
-                        <h4 style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 10px;">Resultado Deseado (R)</h4>
-                        <p id="active-result" style="font-size: 1.05rem; color: var(--text-primary); font-weight: 500;"></p>
-                    </div>
-                    <div style="flex: 1; min-width: 250px; background: var(--bg-body); border-radius: 8px; padding: 20px; border-left: 4px solid #f43f5e;">
-                        <h4 style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 10px;">Tu Propósito (P)</h4>
-                        <p id="active-purpose" style="font-size: 1.05rem; color: var(--text-primary); line-height: 1.6;"></p>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <h2 style="color: var(--text-primary); font-size: 1.8rem; margin: 0; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Misión Estratégica</h2>
+                            <span class="badge badge-success">SISTEMA INICIALIZADO</span>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0;">Perfil Arquitectónico RPM generado por Inteligencia Artificial.</p>
                     </div>
                 </div>
 
-                <div id="active-map-content" style="border: 1px solid var(--border-color); background: var(--bg-base); border-radius: 8px; padding: 30px; margin-bottom: 40px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 30px;">
+                    <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 24px; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--gradient-primary);"></div>
+                        <h4 style="color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; margin-bottom: 12px; font-weight: 700;">[R] Resultado Central</h4>
+                        <p id="active-result" style="font-size: 1.1rem; color: var(--text-primary); font-weight: 500; line-height: 1.6; margin: 0;"></p>
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 24px; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--gradient-secondary);"></div>
+                        <h4 style="color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; margin-bottom: 12px; font-weight: 700;">[P] Propósito Motor</h4>
+                        <p id="active-purpose" style="font-size: 1.05rem; color: var(--text-primary); line-height: 1.6; margin: 0;"></p>
+                    </div>
+                </div>
+
+                <div id="active-map-content">
                     <!-- MAP Content dynamically injected here -->
                 </div>
 
-                <div style="text-align: center; padding-top: 20px; border-top: 1px dashed var(--border-color);">
-                    <button id="wizard-delete-btn" class="btn" style="background: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); font-size: 0.9rem; padding: 10px 20px; cursor: pointer; border-radius: 6px;">
-                        ⚠️ Borrar perfil actual y volver a empezar
+                <div style="text-align: right; padding-top: 30px; border-top: 1px solid var(--border-color); margin-top: 20px;">
+                    <button id="wizard-delete-btn" class="btn btn-outline" style="border-color: var(--danger-color); color: var(--danger-color); font-size: 0.85rem; padding: 10px 20px;">
+                        Purgar Sistema (Factory Reset RPM)
                     </button>
                 </div>
             </div>
@@ -883,47 +887,61 @@ routes['/wizard'].postRender = function() {
         const map = profile.map_json || {};
         const interpret = map.interpretation || {};
         
-        let html = `<h3 style="font-size: 1.4rem; color: var(--accent-color); margin-bottom: 20px;"><span style="margin-right: 10px;">🗺️</span>${map.map_title || 'Massive Action Plan'}</h3>`;
-        
-        html += `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; background: rgba(0,0,0,0.1); padding: 20px; border-radius: 8px;">
-                <div>
-                    <h5 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Ambición</h5>
-                    <p style="color: var(--text-primary); font-weight: bold; font-size: 1rem;">${interpret.ambition_level || '-'}</p>
-                </div>
-                <div>
-                    <h5 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Modelo Preferido</h5>
-                    <p style="color: var(--text-primary); font-weight: bold; font-size: 1rem;">${interpret.preferred_business_type || '-'}</p>
-                </div>
-                <div>
-                    <h5 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Categorías</h5>
-                    <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
-                        ${(interpret.categories_of_interest || []).map(c => `<span style="background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 500;">${c}</span>`).join('')}
+        let html = `
+            <div style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; background: var(--accent-color); border-radius: 50%; box-shadow: 0 0 10px var(--accent-color);"></span>
+                    Vectores Operativos
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div class="stat-box">
+                        <h5 style="color: var(--text-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Nivel de Ambición</h5>
+                        <p style="color: var(--text-primary); font-weight: 600; font-size: 1.1rem;">${interpret.ambition_level || '-'}</p>
                     </div>
-                </div>
-                <div>
-                    <h5 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Restricciones</h5>
-                    <ul style="margin: 5px 0 0 15px; padding: 0; color: #f87171; font-size: 0.85rem;">
-                        ${(interpret.constraints || []).map(c => `<li style="margin-bottom: 3px;">${c}</li>`).join('')}
-                    </ul>
+                    <div class="stat-box">
+                        <h5 style="color: var(--text-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Modelo Táctico</h5>
+                        <p style="color: var(--text-primary); font-weight: 600; font-size: 1.1rem;">${interpret.preferred_business_type || '-'}</p>
+                    </div>
+                    <div class="stat-box" style="grid-column: 1 / -1;">
+                        <h5 style="color: var(--text-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;">Verticales de Mercado</h5>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            ${(interpret.categories_of_interest || []).map(c => `<span class="badge badge-accent">${c}</span>`).join('')}
+                        </div>
+                    </div>
+                    ${interpret.constraints && interpret.constraints.length > 0 ? `
+                    <div class="stat-box" style="grid-column: 1 / -1; border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.02);">
+                        <h5 style="color: var(--danger-color); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;">Restricciones Críticas</h5>
+                        <ul style="margin: 0; padding-left: 20px; color: var(--text-primary); font-size: 0.95rem; line-height: 1.6;">
+                            ${interpret.constraints.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>` : ''}
                 </div>
             </div>
         `;
 
-        html += `<h4 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Brainstorming: Acciones Masivas (M)</h4>`;
+        html += `
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; background: var(--success-color); border-radius: 50%; box-shadow: 0 0 10px var(--success-color);"></span>
+                    Protocolo de Acción Masiva (MAP)
+                </h3>
+        `;
         if (map.massive_actions && Array.isArray(map.massive_actions)) {
-            html += `<ul style="list-style: none; padding: 0; margin: 0;">`;
-            map.massive_actions.forEach(action => {
+            html += `<div style="display: flex; flex-direction: column; gap: 16px;">`;
+            map.massive_actions.forEach((action, index) => {
                 html += `
-                    <li style="padding: 12px 15px; background: var(--bg-body); margin-bottom: 10px; border-radius: 6px; color: var(--text-primary); display: flex; align-items: start; border-left: 3px solid var(--accent-color);">
-                        <span style="color: var(--accent-color); margin-right: 12px; font-size: 1.2rem;">⚡</span>
-                        <span style="line-height: 1.4;">${action}</span>
-                    </li>
+                    <div style="padding: 20px 24px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.2s ease;">
+                        <div style="min-width: 30px; height: 30px; border-radius: 50%; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); color: var(--accent-color); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem;">
+                            ${String(index + 1).padStart(2, '0')}
+                        </div>
+                        <span style="color: var(--text-primary); line-height: 1.6; padding-top: 3px;">${action}</span>
+                    </div>
                 `;
             });
-            html += `</ul>`;
+            html += `</div></div>`;
         } else {
-             html += `<p style="color: var(--text-secondary);">No se generaron acciones masivas.</p>`;
+             html += `<p style="color: var(--text-secondary); padding: 20px; background: rgba(0,0,0,0.2); border-radius: 8px;">Esperando sincronización de directivas...</p></div>`;
         }
 
         mapContent.innerHTML = html;
