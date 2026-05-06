@@ -54,7 +54,11 @@ module.exports = async function handler(req, res) {
         const newUrlsToScrape = discoveredUrls.filter(url => !existingUrlSet.has(url));
         const updatedCount = discoveredUrls.length - newUrlsToScrape.length; // Simply a stat placeholder
         
-        const batchToProcess = newUrlsToScrape.slice(0, maxVideos);
+        // Step 3: Hard Cap for Vercel/Apify Limits
+        // Vercel Hobby max execution is 60s. Apify free tier rejects concurrent requests.
+        // We must process sequentially and cap at 10 to avoid 504 Timeouts.
+        const SAFE_CAP = Math.min(maxVideos, 10);
+        const batchToProcess = newUrlsToScrape.slice(0, SAFE_CAP);
 
         if (batchToProcess.length === 0) {
              await supabase.from('scraper_logs').insert([{ 
@@ -64,8 +68,9 @@ module.exports = async function handler(req, res) {
              return res.status(200).json({ status: "success", message: "No new videos to scrape." });
         }
 
-        // Step 4: Transcript Extraction via Apify REST & Title via oEmbed
-        const extractionPromises = batchToProcess.map(async (videoUrl) => {
+        // Step 4: Sequential Transcript Extraction via Apify REST (Avoids Concurrency Rejection)
+        const extractedData = [];
+        for (const videoUrl of batchToProcess) {
             try {
                 // Fetch Transcript
                 const apiRes = await fetch(`https://api.apify.com/v2/acts/pintostudio~youtube-transcript-scraper/run-sync-get-dataset-items?token=${apifyToken}`, {
@@ -74,13 +79,17 @@ module.exports = async function handler(req, res) {
                     body: JSON.stringify({ videoUrl: videoUrl, language: "en" })
                 });
                 
-                if (!apiRes.ok) return null;
+                if (!apiRes.ok) {
+                    console.log(`Apify skipped ${videoUrl} (Rate Limit or Error)`);
+                    continue;
+                }
+                
                 const items = await apiRes.json();
-                if (!items || items.length === 0 || !items[0].data || items[0].data.length === 0) return null;
+                if (!items || items.length === 0 || !items[0].data || items[0].data.length === 0) continue;
                 
                 const formattedTranscript = items[0].data.map(entry => `[${entry.start}] ${entry.text.replace(/\r?\n|\r/g, ' ')}`).join('\n');
                 
-                // Fetch Real Title via YouTube oEmbed API (Free & No Auth Required)
+                // Fetch Real Title via YouTube oEmbed API
                 let realTitle = `${channel.name} Video (${videoUrl.split('v=')[1]})`;
                 try {
                     const oembedRes = await fetch(`https://www.youtube.com/oembed?url=${videoUrl}&format=json`);
@@ -88,19 +97,19 @@ module.exports = async function handler(req, res) {
                         const oembedData = await oembedRes.json();
                         if (oembedData.title) realTitle = oembedData.title;
                     }
-                } catch (oe) { /* Ignore oembed error, fallback to generic */ }
+                } catch (oe) {}
 
-                return {
+                extractedData.push({
                     channel_id: channel.id,
                     youtube_id: videoUrl.split('v=')[1],
                     title: realTitle,
                     url: videoUrl,
                     transcript_text: formattedTranscript
-                };
-            } catch (e) { return null; }
-        });
-
-        const extractedData = (await Promise.all(extractionPromises)).filter(Boolean);
+                });
+            } catch (e) { 
+                console.error(`Error processing ${videoUrl}:`, e);
+            }
+        }
 
         // Step 5: Database Insertion
         let insertedCount = 0;

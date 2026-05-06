@@ -26,6 +26,7 @@ body {
     background-image: 
         radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
         radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+    background-attachment: fixed;
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     overflow: hidden;
@@ -185,14 +186,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* UI Modules */
 .card {
-    background: var(--bg-surface);
-    backdrop-filter: blur(16px);
+    background: #18181b; /* Solid zinc-900 to fix scroll lag */
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); /* Simplified shadow */
+    transition: transform 0.2s ease, border-color 0.2s ease;
     animation: fadeInUp 0.5s ease backwards;
 }
 

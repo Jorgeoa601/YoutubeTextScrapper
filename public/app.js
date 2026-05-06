@@ -1312,34 +1312,7 @@ function renderSettings() {
             <p style="color: var(--text-secondary); margin-bottom: 30px;">Configura tu inteligencia artificial y gestiona los datos de tu aplicación.</p>
 
             <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-                
-                <!-- AI Config -->
-                <div style="flex: 1; min-width: 300px; background: var(--bg-body); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
-                    <h3 style="margin-bottom: 15px; color: var(--text-primary);">🤖 Configuración de IA (OpenRouter)</h3>
-                    <div class="form-group" style="margin-bottom: 15px;">
-                        <label>Modelo LLM Preferido</label>
-                        <select id="settings-model" class="form-control">
-                            <option value="google/gemini-2.5-flash">Google Gemini 2.5 Flash (Recomendado)</option>
-                            <option value="google/gemini-1.5-pro">Google Gemini 1.5 Pro</option>
-                            <option value="anthropic/claude-3-haiku">Anthropic Claude 3 Haiku</option>
-                            <option value="anthropic/claude-3.5-sonnet">Anthropic Claude 3.5 Sonnet</option>
-                            <option value="openai/gpt-4o-mini">OpenAI GPT-4o Mini</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label>Temperatura (Creatividad vs. Precisión)</label>
-                        <input type="range" id="settings-temp" min="0" max="1" step="0.1" value="0.7" style="width: 100%; margin-bottom: 5px;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary);">
-                            <span>Preciso (0.0)</span>
-                            <span id="settings-temp-val" style="color: var(--accent-color); font-weight: bold;">0.7</span>
-                            <span>Creativo (1.0)</span>
-                        </div>
-                    </div>
-                    <button id="settings-save-ai" class="btn" style="width: 100%;">Guardar Preferencias de IA</button>
-                    <p id="settings-ai-status" style="color: var(--success-color); font-size: 0.85rem; margin-top: 10px; text-align: center; display: none;">Guardado localmente!</p>
-                </div>
-
-                <!-- Danger Zone -->
+                <!-- Danger Zone (Only option now) -->                <!-- Danger Zone -->
                 <div style="flex: 1; min-width: 300px; background: rgba(239, 68, 68, 0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
                     <h3 style="margin-bottom: 15px; color: var(--danger-color);">⚠️ Danger Zone</h3>
                     
@@ -1374,29 +1347,6 @@ function renderSettings() {
 }
 
 routes['/settings'].postRender = function() {
-    const selModel = document.getElementById('settings-model');
-    const rangeTemp = document.getElementById('settings-temp');
-    const valTemp = document.getElementById('settings-temp-val');
-    const btnSaveAi = document.getElementById('settings-save-ai');
-    const aiStatus = document.getElementById('settings-ai-status');
-
-    // Load current
-    selModel.value = localStorage.getItem('aiModel') || 'google/gemini-2.5-flash';
-    rangeTemp.value = localStorage.getItem('aiTemp') || 0.7;
-    valTemp.textContent = rangeTemp.value;
-
-    rangeTemp.addEventListener('input', (e) => {
-        valTemp.textContent = e.target.value;
-    });
-
-    btnSaveAi.addEventListener('click', () => {
-        localStorage.setItem('aiModel', selModel.value);
-        localStorage.setItem('aiTemp', rangeTemp.value);
-        
-        aiStatus.style.display = 'block';
-        setTimeout(() => aiStatus.style.display = 'none', 3000);
-    });
-
     // Danger Zone logic
     document.querySelectorAll('.danger-action').forEach(btn => {
         btn.addEventListener('click', async (e) => {

@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
                     model: modelToUse,
                     temperature: tempToUse,
                     response_format: { type: "json_object" },
-                    max_tokens: 1500,
+                    max_tokens: 3000,
                     messages: prompt
                 })
             });
@@ -55,7 +55,13 @@ module.exports = async function handler(req, res) {
             const responseText = aiData.choices[0].message.content;
             
             const cleanedText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-            const mapJson = JSON.parse(cleanedText);
+            let mapJson;
+            try {
+                mapJson = JSON.parse(cleanedText);
+            } catch (parseErr) {
+                console.error("RAW AI OUTPUT RPM:", cleanedText);
+                throw new Error("El modelo generó un plan RPM incompleto. A veces ocurre con mucha creatividad. Ve a Ajustes, baja la temperatura a 0.2 e intenta de nuevo.");
+            }
 
             if (mapJson.is_valid === false) {
                 return res.status(400).json({ status: "validation_error", error: mapJson.validation_feedback });

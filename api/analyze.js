@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
                 model: modelToUse,
                 temperature: tempToUse,
                 response_format: { type: "json_object" },
-                max_tokens: 1500,
+                max_tokens: 3000,
                 messages: prompt
             })
         });
@@ -58,7 +58,13 @@ module.exports = async function handler(req, res) {
         const responseText = aiData.choices[0].message.content;
         
         const cleanedText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        const resultJson = JSON.parse(cleanedText);
+        let resultJson;
+        try {
+            resultJson = JSON.parse(cleanedText);
+        } catch (parseErr) {
+            console.error("RAW AI OUTPUT:", cleanedText);
+            throw new Error("La IA devolvió un texto incompleto o mal formateado. Si el video es muy largo, la IA puede haberse cortado. Intenta cambiar de modelo o bajar la temperatura en Ajustes.");
+        }
 
         const { data: existing } = await supabase
             .from('ai_video_analysis')
