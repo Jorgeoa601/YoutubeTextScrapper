@@ -493,3 +493,378 @@ function renderPlaceholder(title) {
         </div>
     `;
 }
+
+function renderPainPoints() {
+    return `
+        <div class="card module-card" style="display: flex; gap: 20px; position: relative; flex-wrap: wrap;">
+            <div style="flex: 2; min-width: 300px;">
+                <h2>Análisis de Pain Points LATAM</h2>
+                <p style="color: var(--text-secondary); margin-top: 5px; margin-bottom: 20px;">Utiliza Gemini Flash para extraer problemas centrales desde las transcripciones.</p>
+                <div class="table-container" style="overflow-x: auto;">
+                    <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase;">
+                                <th style="padding: 12px 15px;">VIDEO TITLE</th>
+                                <th style="padding: 12px 15px;">ESTADO IA</th>
+                                <th style="padding: 12px 15px;">ACCIÓN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pain-points-list">
+                            <tr><td colspan="3" style="text-align: center; padding: 20px; color: var(--text-secondary);">Cargando videos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="ai-side-panel" style="flex: 1; min-width: 300px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; display: none; flex-direction: column; gap: 15px;">
+                <h3 style="font-size: 1.1rem; color: var(--accent-color); margin-bottom: 10px;">Resultados de IA ✨</h3>
+                <div id="ai-panel-content"></div>
+            </div>
+        </div>
+    `;
+}
+
+routes['/pain-points'].render = renderPainPoints;
+routes['/pain-points'].postRender = async function() {
+    const list = document.getElementById('pain-points-list');
+    const sidePanel = document.getElementById('ai-side-panel');
+    const panelContent = document.getElementById('ai-panel-content');
+    if (!list) return;
+
+    async function loadAIVideos() {
+        try {
+            const res = await fetch('/api/ai-videos');
+            const { status, data } = await res.json();
+            if (status === 'success') {
+                if(data.length === 0) {
+                    list.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px;">No hay videos.</td></tr>';
+                    return;
+                }
+                list.innerHTML = data.map(v => {
+                    const isAnalyzed = v.ai_video_analysis && v.ai_video_analysis.length > 0;
+                    const statusHtml = isAnalyzed 
+                        ? '<span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">ANALIZADO</span>' 
+                        : '<span style="background: rgba(107, 114, 128, 0.1); color: #9ca3af; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">PENDIENTE</span>';
+                    
+                    const actionHtml = isAnalyzed
+                        ? `<button class="btn btn-outline btn-sm view-ai-btn" data-json='${JSON.stringify(v.ai_video_analysis[0].analysis_json).replace(/'/g, "&#39;")}' style="padding: 5px 10px; font-size: 0.8rem;">Ver Análisis</button>`
+                        : `<button class="btn btn-sm analyze-btn" data-id="${v.id}" style="padding: 5px 10px; font-size: 0.8rem; background: var(--accent-color);">✨ Analizar</button>`;
+
+                    return `
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 15px; font-weight: 500; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${v.title}">${v.title}</td>
+                            <td style="padding: 15px;">${statusHtml}</td>
+                            <td style="padding: 15px;">${actionHtml}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Attach Events
+                document.querySelectorAll('.view-ai-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const json = JSON.parse(e.target.getAttribute('data-json'));
+                        showSidePanel(json);
+                    });
+                });
+
+                document.querySelectorAll('.analyze-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const id = e.target.dataset.id;
+                        e.target.disabled = true;
+                        e.target.textContent = 'Analizando...';
+                        try {
+                            const analyzeRes = await fetch('/api/analyze', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ video_id: id })
+                            });
+                            if(analyzeRes.ok) await loadAIVideos();
+                            else alert("Error analizando con IA");
+                        } catch(err) { alert("Error de conexión"); }
+                    });
+                });
+            }
+        } catch(e) {
+            list.innerHTML = '<tr><td colspan="3" style="color: var(--danger-color); padding: 20px;">Error cargando data.</td></tr>';
+        }
+    }
+
+    function showSidePanel(json) {
+        sidePanel.style.display = 'flex';
+        panelContent.innerHTML = `
+            <div style="margin-bottom: 15px;">
+                <h4 style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase;">Categoría</h4>
+                <p style="font-weight: 500;">${json.pain_point_category || '-'}</p>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h4 style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase;">Problema Central</h4>
+                <p style="font-size: 0.95rem; line-height: 1.5;">${json.core_problem || '-'}</p>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <h4 style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase;">Contexto LATAM</h4>
+                <p style="font-size: 0.95rem; line-height: 1.5; color: #a78bfa;">${json.latam_context || '-'}</p>
+            </div>
+            <div>
+                <h4 style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase;">Público Objetivo</h4>
+                <p style="font-size: 0.95rem; line-height: 1.5;">${json.target_audience || '-'}</p>
+            </div>
+        `;
+    }
+
+    loadAIVideos();
+};
+
+function renderWizard() {
+    return `
+        <div class="card module-card" style="max-width: 800px; margin: 0 auto; min-height: 400px; position: relative;">
+            
+            <div id="wizard-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px;">
+                <div class="spinner" style="width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                <h3 style="color: var(--text-secondary);">Cargando perfil RPM...</h3>
+            </div>
+
+            <!-- MODO CREACIÓN -->
+            <div id="wizard-creation-mode" style="display: none;">
+                <h2 style="text-align: center; margin-bottom: 10px;">Generador RPM (Massive Action Plan)</h2>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 40px;">Construye la base inamovible de tu negocio usando el poder de Gemini.</p>
+                
+                <div id="wizard-step-1" style="animation: fadeIn 0.5s;">
+                    <div class="form-group" style="margin-bottom: 30px;">
+                        <label style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 10px; display: block;">1. Resultado (Result) 🎯</label>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5;">
+                            <strong>¿Qué quieres realmente?</strong> Resultados específicos y medibles. No "ganar dinero" — algo concreto.<br>
+                            <em>Ejemplo: ¿Cuánto? ¿En cuánto tiempo? ¿Desde dónde? ¿Con qué tipo de negocio? ¿Full-time o side project?</em>
+                        </p>
+                        <textarea id="wizard-result" class="form-control" rows="3" placeholder="Quiero crear una agencia B2B que facture $5,000 USD/mes trabajando 4h al día desde casa..." style="font-size: 1.1rem; padding: 15px;"></textarea>
+                    </div>
+                    <button id="wizard-next-btn" class="btn" style="width: 100%; font-size: 1.1rem; padding: 15px; background: var(--accent-color);">Siguiente Paso ➔</button>
+                </div>
+
+                <div id="wizard-step-2" style="display: none; animation: fadeIn 0.5s;">
+                    <div class="form-group" style="margin-bottom: 30px;">
+                        <label style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 10px; display: block;">2. Propósito (Purpose) ❤️</label>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5;">
+                            <strong>¿Por qué lo quieres?</strong> Las razones emocionales profundas. Sin un "por qué" fuerte, las acciones no se sostienen.<br>
+                            <em>Profundiza: ¿Qué pasa si NO lo logras? ¿A quién más beneficia además de ti?</em>
+                        </p>
+                        <textarea id="wizard-purpose" class="form-control" rows="4" placeholder="Para nunca más depender de un jefe, para que mi familia no pase apuros y para demostrarme de lo que soy capaz. Si no lo logro, estaré atrapado." style="font-size: 1.1rem; padding: 15px;"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <button id="wizard-back-s1-btn" class="btn btn-outline" style="flex: 1; padding: 15px;">⬅ Volver</button>
+                        <button id="wizard-generate-btn" class="btn" style="flex: 2; font-size: 1.1rem; padding: 15px; background: linear-gradient(135deg, var(--accent-color), #a855f7);">✨ Analizar y Generar MAP</button>
+                    </div>
+                </div>
+
+                <div id="wizard-step-3" style="display: none; text-align: center; padding: 60px 0; animation: fadeIn 0.5s;">
+                    <div class="spinner" style="width: 50px; height: 50px; border: 4px solid var(--border-color); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 25px;"></div>
+                    <h2 style="color: var(--accent-color); margin-bottom: 10px;">Gemini está decodificando tu Perfil...</h2>
+                    <p style="color: var(--text-secondary);">Extrayendo restricciones, categorías y armando un Brainstorm de acciones masivas.</p>
+                </div>
+            </div>
+
+            <!-- MODO PERFIL ACTIVO -->
+            <div id="wizard-active-mode" style="display: none; animation: fadeIn 0.5s;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <h2 style="color: var(--text-primary); font-size: 1.8rem;">Perfil RPM Procesado 🚀</h2>
+                        <p style="color: var(--success-color); font-weight: 500; font-size: 0.9rem; margin-top: 5px;">IA: Análisis de restricciones y plan completado.</p>
+                    </div>
+                    <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.2);">IA ACTIVADA</span>
+                </div>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px;">
+                    <div style="flex: 1; min-width: 250px; background: var(--bg-body); border-radius: 8px; padding: 20px; border-left: 4px solid var(--accent-color);">
+                        <h4 style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 10px;">Resultado Deseado (R)</h4>
+                        <p id="active-result" style="font-size: 1.05rem; color: var(--text-primary); font-weight: 500;"></p>
+                    </div>
+                    <div style="flex: 1; min-width: 250px; background: var(--bg-body); border-radius: 8px; padding: 20px; border-left: 4px solid #f43f5e;">
+                        <h4 style="color: var(--text-secondary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 10px;">Tu Propósito (P)</h4>
+                        <p id="active-purpose" style="font-size: 1.05rem; color: var(--text-primary); line-height: 1.6;"></p>
+                    </div>
+                </div>
+
+                <div id="active-map-content" style="border: 1px solid var(--border-color); background: var(--bg-base); border-radius: 8px; padding: 30px; margin-bottom: 40px;">
+                    <!-- MAP Content dynamically injected here -->
+                </div>
+
+                <div style="text-align: center; padding-top: 20px; border-top: 1px dashed var(--border-color);">
+                    <button id="wizard-delete-btn" class="btn" style="background: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); font-size: 0.9rem; padding: 10px 20px; cursor: pointer; border-radius: 6px;">
+                        ⚠️ Borrar perfil actual y volver a empezar
+                    </button>
+                </div>
+            </div>
+
+            <style>
+                @keyframes spin { to { transform: rotate(360deg); } }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            </style>
+        </div>
+    `;
+}
+
+routes['/wizard'].render = renderWizard;
+routes['/wizard'].postRender = function() {
+    const loadingView = document.getElementById('wizard-loading');
+    const creationMode = document.getElementById('wizard-creation-mode');
+    const activeMode = document.getElementById('wizard-active-mode');
+
+    const s1 = document.getElementById('wizard-step-1');
+    const s2 = document.getElementById('wizard-step-2');
+    const s3 = document.getElementById('wizard-step-3');
+    const inputResult = document.getElementById('wizard-result');
+    const inputPurpose = document.getElementById('wizard-purpose');
+    const btnNext = document.getElementById('wizard-next-btn');
+    const btnBackS1 = document.getElementById('wizard-back-s1-btn');
+    const btnGenerate = document.getElementById('wizard-generate-btn');
+
+    const txtResult = document.getElementById('active-result');
+    const txtPurpose = document.getElementById('active-purpose');
+    const mapContent = document.getElementById('active-map-content');
+    const btnDelete = document.getElementById('wizard-delete-btn');
+
+    async function initWizard() {
+        loadingView.style.display = 'flex';
+        creationMode.style.display = 'none';
+        activeMode.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/rpm');
+            const { status, data } = await res.json();
+            
+            if (status === 'success' && data) {
+                renderActiveProfile(data);
+                loadingView.style.display = 'none';
+                activeMode.style.display = 'block';
+            } else {
+                loadingView.style.display = 'none';
+                creationMode.style.display = 'block';
+                s1.style.display = 'block';
+                s2.style.display = 'none';
+                s3.style.display = 'none';
+            }
+        } catch (e) {
+            alert("Error conectando con el servidor RPM.");
+        }
+    }
+
+    btnNext.addEventListener('click', () => {
+        if (!inputResult.value.trim()) return alert("Por favor, ingresa tu resultado.");
+        s1.style.display = 'none';
+        s2.style.display = 'block';
+    });
+
+    btnBackS1.addEventListener('click', () => {
+        s2.style.display = 'none';
+        s1.style.display = 'block';
+    });
+
+    btnGenerate.addEventListener('click', async () => {
+        const result = inputResult.value.trim();
+        const purpose = inputPurpose.value.trim();
+        if (!purpose) return alert("Por favor, ingresa tu propósito.");
+
+        s2.style.display = 'none';
+        s3.style.display = 'block';
+
+        try {
+            const res = await fetch('/api/rpm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ result, purpose })
+            });
+            const resData = await res.json();
+            
+            if (res.ok && resData.status === 'success') {
+                inputResult.value = '';
+                inputPurpose.value = '';
+                initWizard(); 
+            } else if (res.status === 400 && resData.status === 'validation_error') {
+                alert("🤖 Feedback del Estratega IA:\n\n" + resData.error + "\n\nPor favor, sé más específico.");
+                s3.style.display = 'none';
+                s1.style.display = 'block'; // Regresar al paso 1 para corregir
+            } else {
+                throw new Error(resData.error || "Error desconocido");
+            }
+        } catch (e) {
+            alert("Error en la IA: " + e.message);
+            s3.style.display = 'none';
+            s2.style.display = 'block';
+        }
+    });
+
+    btnDelete.addEventListener('click', async () => {
+        if (!confirm("⚠️ ¿Estás seguro de que deseas borrar este perfil estratégico?")) return;
+        
+        btnDelete.disabled = true;
+        btnDelete.textContent = "Borrando...";
+
+        try {
+            const res = await fetch('/api/rpm', { method: 'DELETE' });
+            if (res.ok) {
+                initWizard();
+            } else {
+                throw new Error("Fallo al borrar perfil de la base de datos.");
+            }
+        } catch (e) {
+            alert(e.message);
+        } finally {
+            btnDelete.disabled = false;
+            btnDelete.textContent = "⚠️ Borrar perfil actual y volver a empezar";
+        }
+    });
+
+    function renderActiveProfile(profile) {
+        txtResult.textContent = profile.results_json?.target || '-';
+        txtPurpose.textContent = profile.purpose_json?.logic || '-';
+        
+        const map = profile.map_json || {};
+        const interpret = map.interpretation || {};
+        
+        let html = `<h3 style="font-size: 1.4rem; color: var(--accent-color); margin-bottom: 20px;"><span style="margin-right: 10px;">🗺️</span>${map.map_title || 'Massive Action Plan'}</h3>`;
+        
+        html += `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; background: rgba(0,0,0,0.1); padding: 20px; border-radius: 8px;">
+                <div>
+                    <h5 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Ambición</h5>
+                    <p style="color: var(--text-primary); font-weight: bold; font-size: 1rem;">${interpret.ambition_level || '-'}</p>
+                </div>
+                <div>
+                    <h5 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Modelo Preferido</h5>
+                    <p style="color: var(--text-primary); font-weight: bold; font-size: 1rem;">${interpret.preferred_business_type || '-'}</p>
+                </div>
+                <div>
+                    <h5 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Categorías</h5>
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
+                        ${(interpret.categories_of_interest || []).map(c => `<span style="background: rgba(168, 85, 247, 0.2); color: #c084fc; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 500;">${c}</span>`).join('')}
+                    </div>
+                </div>
+                <div>
+                    <h5 style="color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px;">Restricciones</h5>
+                    <ul style="margin: 5px 0 0 15px; padding: 0; color: #f87171; font-size: 0.85rem;">
+                        ${(interpret.constraints || []).map(c => `<li style="margin-bottom: 3px;">${c}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+
+        html += `<h4 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Brainstorming: Acciones Masivas (M)</h4>`;
+        if (map.massive_actions && Array.isArray(map.massive_actions)) {
+            html += `<ul style="list-style: none; padding: 0; margin: 0;">`;
+            map.massive_actions.forEach(action => {
+                html += `
+                    <li style="padding: 12px 15px; background: var(--bg-body); margin-bottom: 10px; border-radius: 6px; color: var(--text-primary); display: flex; align-items: start; border-left: 3px solid var(--accent-color);">
+                        <span style="color: var(--accent-color); margin-right: 12px; font-size: 1.2rem;">⚡</span>
+                        <span style="line-height: 1.4;">${action}</span>
+                    </li>
+                `;
+            });
+            html += `</ul>`;
+        } else {
+             html += `<p style="color: var(--text-secondary);">No se generaron acciones masivas.</p>`;
+        }
+
+        mapContent.innerHTML = html;
+    }
+
+    initWizard();
+};
