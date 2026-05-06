@@ -14,7 +14,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { result, purpose } = req.body;
+        const { result, purpose, aiModel, aiTemp } = req.body;
         if (!result || !purpose) return res.status(400).json({ error: "Result and Purpose required." });
 
         const openrouterKey = process.env.OPENROUTER_API_KEY;
@@ -31,6 +31,9 @@ module.exports = async function handler(req, res) {
                 }
             ];
 
+            const modelToUse = aiModel || "google/gemini-2.5-flash";
+            const tempToUse = aiTemp !== undefined ? parseFloat(aiTemp) : 0.7;
+
             const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
@@ -38,7 +41,8 @@ module.exports = async function handler(req, res) {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "google/gemini-2.5-flash",
+                    model: modelToUse,
+                    temperature: tempToUse,
                     response_format: { type: "json_object" },
                     max_tokens: 1500,
                     messages: prompt

@@ -3,7 +3,7 @@ const { createClient } = require('@supabase/supabase-js');
 module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: "Method Not Allowed." });
 
-    const { video_id } = req.body;
+    const { video_id, aiModel, aiTemp } = req.body;
     if (!video_id) return res.status(400).json({ error: "video_id required." });
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -19,6 +19,9 @@ module.exports = async function handler(req, res) {
         if (dbErr || !video || !video.transcript_text) {
             throw new Error("Transcript not found for this video.");
         }
+
+        const modelToUse = aiModel || "google/gemini-2.5-flash";
+        const tempToUse = aiTemp !== undefined ? parseFloat(aiTemp) : 0.7;
 
         const prompt = [
             {
@@ -38,7 +41,8 @@ module.exports = async function handler(req, res) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "google/gemini-2.5-flash",
+                model: modelToUse,
+                temperature: tempToUse,
                 response_format: { type: "json_object" },
                 max_tokens: 1500,
                 messages: prompt

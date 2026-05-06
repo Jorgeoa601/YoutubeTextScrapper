@@ -17,19 +17,17 @@ module.exports = async function handler(req, res) {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     try {
-        const { count: totalVideos, error: countError } = await supabase
-            .from('videos')
-            .select('*', { count: 'exact', head: true });
+        const { count: totalVideos } = await supabase.from('videos').select('*', { count: 'exact', head: true });
+        
+        const { count: totalAnalyzed } = await supabase.from('ai_video_analysis').select('*', { count: 'exact', head: true });
 
-        if (countError) throw countError;
+        const { count: totalSolutions } = await supabase.from('solutions').select('*', { count: 'exact', head: true });
 
-        const { data: lastLogArray, error: logError } = await supabase
-            .from('scraper_logs')
-            .select('run_datetime, status')
-            .order('run_datetime', { ascending: false })
-            .limit(1);
+        const { count: totalMvt } = await supabase.from('mvt_conversations').select('*', { count: 'exact', head: true });
 
-        if (logError) throw logError;
+        const { data: chosenSolution } = await supabase.from('solutions').select('title, fit_score').eq('is_chosen_for_mvt', true).single();
+
+        const { data: lastLogArray } = await supabase.from('scraper_logs').select('run_datetime, status').order('run_datetime', { ascending: false }).limit(1);
 
         const lastLog = lastLogArray && lastLogArray.length > 0 ? lastLogArray[0] : null;
 
@@ -37,6 +35,10 @@ module.exports = async function handler(req, res) {
             status: "success",
             data: {
                 total_videos: totalVideos || 0,
+                total_analyzed: totalAnalyzed || 0,
+                total_solutions: totalSolutions || 0,
+                total_mvt: totalMvt || 0,
+                active_solution: chosenSolution || null,
                 last_scrape: lastLog ? lastLog.run_datetime : null,
                 last_status: lastLog ? lastLog.status : null
             }
